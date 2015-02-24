@@ -4,7 +4,6 @@
 #include "chip8.h"
 #include "fontset.h"
 
-
 unsigned short opcode;
 
 unsigned char memory[4096];	//	4k ram
@@ -23,7 +22,7 @@ unsigned char key[16];
 
 void initialize()
 {
-	pc == 0x200;
+	pc = 0x200;
 	opcode = 0;
 	I = 0;
 	sp = 0;
@@ -58,7 +57,7 @@ void initialize()
 	delay_timer = 0;
 	sound_timer = 0;
 	
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 	
 	drawFlag = true;
 }
@@ -66,15 +65,15 @@ void initialize()
 int loadGame(char *filename)
 {
 	FILE *game;
+	errno_t err;
 	unsigned char buf[4096];
 	int i;
 	
-	game = fopen(filename, "rb");
-	if(game == NULL){
+	if (err = fopen_s(&game, filename, "rb") != 0){
 		printf("gamefile open error!");
 		return 1;
 	}
-	
+
 	i = fread(buf, sizeof(unsigned char), 4096, game);
 	if(i == 0){
 		printf("gamefile read error!");
@@ -126,12 +125,12 @@ void emulateCycle()
 			pc = opcode & 0x0fff;
 			break;
 		case 0x3000:
-			if(V[(opcode & 0x0f00) >> 8] == (opcode & 0x00ff){
+			if(V[(opcode & 0x0f00) >> 8] == (opcode & 0x00ff)){
 				pc += 2;
 			}
 			break;
 		case 0x4000:
-			if(V[(opcode & 0x0f00) >> 8] != (opcode & 0x00ff){
+			if(V[(opcode & 0x0f00) >> 8] != (opcode & 0x00ff)){
 				pc += 2;
 			}
 			break;
@@ -140,7 +139,7 @@ void emulateCycle()
 				printf("Unknow opcode[0x5000] : 0x%X", opcode);
 				break;
 			}
-			if(V[(opcode & 0x0f00) >> 8] == V[(opcode & 0x00f0) >> 4]{
+			if(V[(opcode & 0x0f00) >> 8] == V[(opcode & 0x00f0) >> 4]){
 				pc += 2;
 			}
 			break;
@@ -205,7 +204,7 @@ void emulateCycle()
 				printf("Unknow opcode[0x9000] : 0x%X", opcode);
 				break;
 			}
-			if(V[(opcode & 0x0f00) >> 8] != V[(opcode & 0x00f0) >> 4]{
+			if(V[(opcode & 0x0f00) >> 8] != V[(opcode & 0x00f0) >> 4]){
 				pc += 2;
 			}
 			break;
@@ -219,6 +218,7 @@ void emulateCycle()
 			V[(opcode & 0x0f00) >> 8] = (rand() % 0xFF) & (opcode & 0x00ff);
 			break;
 		case 0xd000:
+			;
 			unsigned short x = (opcode & 0x0f00) >> 8;
 			unsigned short y = (opcode & 0x00f0) >> 4;
 			unsigned short n = opcode & 0x000f;
@@ -229,7 +229,7 @@ void emulateCycle()
 			for(int i=0; i<n; i++){
 				dat = memory[I + i];
 				for(int j=0; j<8; j++){
-					if(dat & (0x80 >> j) == 1){
+					if((dat & (0x80 >> j)) != 0){
 						if(gfx[x+j + (y+n) * 64] == 1){
 							V[0xf] = 1;
 						}
@@ -238,6 +238,7 @@ void emulateCycle()
 				}
 			}
 			drawFlag = true;
+			break;
 		case 0xe000:
 			switch(opcode & 0x00ff){
 			case 0x9e:
@@ -260,6 +261,7 @@ void emulateCycle()
 				V[(opcode & 0x0f00) >> 8] = delay_timer;
 				break;
 			case 0x0a:
+				;
 				int i;
 				for(i=0; i<16; i++){
 					if(key[i] == 1){
@@ -320,12 +322,4 @@ void emulateCycle()
 		}
 		sound_timer--;
 	}
-}
-
-void drawGfx()
-{
-}
-
-void setKeys()
-{
 }
