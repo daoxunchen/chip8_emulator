@@ -8,6 +8,7 @@ const int SCREEN_HEIGHT = 320;
 const int TILE_SIZE = 10;
 const char *foreBMP = "D:\\fore.bmp";
 const char *backBMP = "D:\\back.bmp";
+//const char *gamefile = "D:\\Coin.ch8";
 bool quit = false;
 
 void drawGfx();
@@ -58,6 +59,7 @@ int main(int argc, char *argv[]) {
 
 	initialize();
 	if (loadGame(argv[1])){
+//	if (loadGame(gamefile)){
 		return 1;
 	}
 

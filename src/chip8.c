@@ -62,7 +62,7 @@ void initialize()
 	drawFlag = true;
 }
 
-int loadGame(char *filename)
+int loadGame(const char *filename)
 {
 	FILE *game;
 	errno_t err;
@@ -70,18 +70,18 @@ int loadGame(char *filename)
 	int i;
 	
 	if (err = fopen_s(&game, filename, "rb") != 0){
-		printf("gamefile open error!");
+		printf("gamefile open error1!");
 		return 1;
 	}
 
 	i = fread(buf, sizeof(unsigned char), 4096, game);
 	if(i == 0){
-		printf("gamefile read error!");
+		printf("gamefile read error2!");
 		fclose(game);
 		return 2;
 	}
     if(i > (4096 - 512)){
-    	printf("gamefile size error");
+    	printf("gamefile size error3");
     	fclose(game);
     	return 3;
 	}
@@ -218,24 +218,27 @@ void emulateCycle()
 			V[(opcode & 0x0f00) >> 8] = (rand() % 0xFF) & (opcode & 0x00ff);
 			break;
 		case 0xd000:
-			;
-			unsigned short x = (opcode & 0x0f00) >> 8;
-			unsigned short y = (opcode & 0x00f0) >> 4;
+			{
+			unsigned short x = V[(opcode & 0x0f00) >> 8];
+			unsigned short y = V[(opcode & 0x00f0) >> 4];
 			unsigned short n = opcode & 0x000f;
 			unsigned short dat;
-			
+			unsigned short index;
 			V[0xf] = 0;
-			
-			for(int i=0; i<n; i++){
+
+			for (int i = 0; i < n; i++){
+
 				dat = memory[I + i];
-				for(int j=0; j<8; j++){
-					if((dat & (0x80 >> j)) != 0){
-						if(gfx[x+j + (y+n) * 64] == 1){
+				for (int j = 0; j < 8; j++){
+					if ((dat & (0x80 >> j)) != 0){
+						index = (y + i) * 64 + x + j;
+						if (gfx[index] == 1){
 							V[0xf] = 1;
 						}
-						gfx[x+j + (y+n) * 64] ^= 1; 
-					}					
+						gfx[index] ^= 1;
+					}
 				}
+			}
 			}
 			drawFlag = true;
 			break;

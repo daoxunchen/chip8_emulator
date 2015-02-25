@@ -10,7 +10,7 @@ extern unsigned char gfx[64 * 32];
 extern unsigned char key[16];
 
 void initialize(void);
-int loadGame(char *filename);
+int loadGame(const char *filename);
 void emulateCycle(void);
 
 #endif
